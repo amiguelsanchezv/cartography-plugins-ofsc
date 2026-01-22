@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cartography Plugin</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
+    <script src="plugin-service-worker-interface.js"></script>
+    <script src="plugin.js"></script>
+    <script src="./main.js"></script>
+</head>
+
+<body>
+    <div id="activity-info-bar">
+        <span><strong>Longitude:</strong> <span id="info-longitude">-</span></span>
+        <span><strong>Latitude:</strong> <span id="info-latitude">-</span></span>
+        <span><strong>Distance:</strong> <span id="info-distance">-</span></span>
+        <span><strong>Wire Name:</strong> <span id="info-wire-name">-</span></span>
+        <span><strong>Activity ID:</strong> <span id="info-activity-id">-</span></span>
+    </div>
+
+    <div class="activity-bar-spacer"></div>
+        <div class="header">
+            <img class="header__logo" src="./kingfisher.svg" alt="Kingfisher">
+            <h1>Cartography</h1>
+        </div>
+
+        <div id="main-menu">
+            <button id="menu-visualization" class="menu-tab active">Visualization</button>
+            <button id="menu-registration" class="menu-tab">Registration</button>
+        </div>
+
+        <div class="content" id="viewer-maps">
+            <div class="content-container">
+                <div class="options-container">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label-wrapper">
+                            <input type="checkbox" id="toggle-central" checked class="checkbox-input">
+                            <span class="checkbox-text">Search by Central</span>
+                        </label>
+                        <label class="checkbox-label-wrapper">
+                            <input type="checkbox" id="use-activity-coords" checked class="checkbox-input">
+                            <span class="checkbox-text">Use activity coordinates</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-container">
+                    <div class="form-row">
+                        <div class="form-group" id="group-centrals-select">
+                            <label for="centrals-select">Central:</label>
+                            <select id="centrals-select" class="input-control">
+                                <option value="">-- Select central --</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="group-autocomplete-address">
+                            <label for="autocomplete-address">Address:</label>
+                            <input type="text" id="autocomplete-address" placeholder="Search address" class="input-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="wire-name">Wire Name:</label>
+                            <input type="text" id="wire-name" placeholder="Wire name" class="input-control">
+                        </div>
+                        <div class="form-group half">
+                            <label for="distance">Distance (m):</label>
+                            <input type="number" id="distance" name="distance" min="0" placeholder="Distance" class="input-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button id="calculate-failure" class="main-action-btn">Calculate Failure Point</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="registration-section">
+                <div class="form-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="element-type">Element Type:</label>
+                            <select id="element-type" class="input-control">
+                                <option value="">-- Select type --</option>
+                                <option value="chamber">Chamber</option>
+                                <option value="splice">Splice</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="form-chamber" class="registration-form form-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chamber-type">Type:</label>
+                            <select id="chamber-type" class="input-control">
+                                <option value="manhole">Manhole</option>
+                                <option value="pedestal">Pedestal</option>
+                                <option value="handhole">Handhole</option>
+                                <option value="conduit-terminus">Conduit Terminus</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="chamber-id-text">ID Text:</label>
+                            <input type="text" id="chamber-id-text" class="input-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chamber-name">Name:</label>
+                            <input type="text" id="chamber-name" class="input-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="chamber-opening-type">Opening Type:</label>
+                            <select id="chamber-opening" class="input-control">
+                                <option value="standard">Standard</option>
+                                <option value="magnetic">Magnetic</option>
+                                <option value="standard-welded">Standard Welded</option>
+                                <option value="security-lock">Security Lock</option>
+                                <option value="differential-corkscrew">Differential Corkscrew</option>
+                                <option value="cortina-lock">Cortina Lock</option>
+                                <option value="security-lock-welded">Security Lock Welded</option>
+                                <option value="differential-corkscrew-welded">Differential Corkscrew Welded</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chamber-location">Location (Address):</label>
+                            <input type="text" id="chamber-location" class="input-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="chamber-owner">Owner:</label>
+                            <select id="chamber-owner" class="input-control">
+                                <option value="telecom-alpha">Telecom Alpha</option>
+                                <option value="energy-beta">Energy Beta</option>
+                                <option value="other-operators">Other Operators</option>
+                                <option value="services-gamma">Services Gamma</option>
+                                <option value="networks-delta">Networks Delta</option>
+                                <option value="utilities-epsilon">Utilities Epsilon</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chamber-construction">Construction:</label>
+                            <select id="chamber-construction" class="input-control">
+                                <option value="is">Installed</option>
+                                <option value="pa">Partial</option>
+                                <option value="pf">Full</option>
+                                <option value="pl">Partial</option>
+                                <option value="pr">Protected</option>
+                                <option value="rm">Removal</option>
+                                <option value="ic">Installed</option>
+                                <option value="rf">Replaced</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="chamber-state">Chamber State:</label>
+                            <select id="chamber-state" class="input-control">
+                                <option value="no-news">No News</option>
+                                <option value="with-gas">With Gas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="chamber-code">Code:</label>
+                            <input type="text" id="chamber-code" class="input-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="chamber-longitude">Longitude:</label>
+                            <input type="number" id="chamber-longitude" class="input-control" step="any" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="chamber-latitude">Latitude:</label>
+                            <input type="number" id="chamber-latitude" class="input-control" step="any" readonly>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="location-btn" id="get-chamber-location">Capture Location</button>
+                        </div>
+                    </div>
+                    <div class="center-btn-row">
+                        <button id="submit-chamber" class="main-action-btn">Register Chamber</button>
+                    </div>
+                </div>
+
+                <div id="form-splice" class="registration-form form-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="splice-name">Name:</label>
+                            <input type="text" id="splice-name" class="input-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-type">Type:</label>
+                            <select id="splice-type" class="input-control">
+                                <option value="mechanical">Mechanical</option>
+                                <option value="optical-fiber">Optical Fiber</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-id-text">ID Text:</label>
+                            <input type="text" id="splice-id-text" class="input-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="splice-segment">Segment:</label>
+                            <input type="text" id="splice-segment" class="input-control" value="Business">
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-owner">Owner:</label>
+                            <select id="splice-owner" class="input-control">
+                                <option value="telecom-alpha">Telecom Alpha</option>
+                                <option value="unset">Unset</option>
+                                <option value="network-beta">Network Beta</option>
+                                <option value="communications-gamma">Communications Gamma</option>
+                                <option value="other-operators">Other Operators</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-splice-type">Splice Type:</label>
+                            <input type="text" id="splice-splice-type" class="input-control" value="Break">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="splice-id-specification">ID Specification:</label>
+                            <input type="text" id="splice-id-specification" class="input-control" value="4604">
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-construction-status">Construction Status:</label>
+                            <select id="splice-construction-status" class="input-control">
+                                <option value="is">Installed</option>
+                                <option value="pa">Partial</option>
+                                <option value="pf">Full</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-specification-name">Specification Name:</label>
+                            <select id="splice-specification-name" class="input-control">
+                                <option value="Customer Splice">Customer Splice</option>
+                                <option value="NAP Basement">NAP Basement</option>
+                                <option value="NAP Floor">NAP Floor</option>
+                                <option value="Splice Terminal">Splice Terminal</option>
+                                <option value="NAP Box Floor">NAP Box Floor</option>
+                                <option value="Type X">Type X</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="splice-longitude">Longitude:</label>
+                            <input type="number" id="splice-longitude" class="input-control" step="any" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-latitude">Latitude:</label>
+                            <input type="number" id="splice-latitude" class="input-control" step="any" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="splice-location">Location:</label>
+                            <input type="text" id="splice-location" class="input-control">
+                        </div>
+                        <div class="form-group">
+                            <button id="get-splice-location" class="location-btn">Capture Location</button>
+                        </div>
+                    </div>
+                    <div class="center-btn-row">
+                        <button id="submit-splice" class="main-action-btn">Register Splice</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="map-container">
+                <div id="map">
+                    <div class="map-legend">
+                        <div class="legend-title">Legend</div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-color-red"></div>
+                            <span>Chambers in failure</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-color-orange"></div>
+                            <span>Nearby chambers</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-color-blue"></div>
+                            <span>Selected location</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="custom-popup">
+            <div class="popup-content">
+                <div class="popup-message"></div>
+                <button onclick="closePopup()" class="popup-button">Accept</button>
+            </div>
+        </div>
+
+        <div id="loading-overlay">
+            <div class="loading-container">
+                <div class="lds-roller">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="loading-text">Loading...</div>
+            </div>
+        </div>
+        <div hidden class="json json__request"></div>
+    </body>
+
+</html>
